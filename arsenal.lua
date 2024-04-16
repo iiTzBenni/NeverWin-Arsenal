@@ -1,5 +1,3 @@
-local language = "Lua"
-
 if game.PlaceID == "286090429" then
 -- Booting up the library
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
