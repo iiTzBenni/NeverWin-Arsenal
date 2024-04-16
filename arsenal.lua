@@ -8,8 +8,6 @@ if game.PlaceId == "286090429" then
             Name = "NeverWin Arsenal",
             IntroEnabled = "True",
             IntroText = "NeverWin Arsenal",
-            IntroIcon = "https://i.ibb.co/WyQcqLW/B11-EAE04-032-E-4-DB9-9-B11-125-FDAE006-EE.jpg",
-            Icon = "https://i.ibb.co/WyQcqLW/B11-EAE04-032-E-4-DB9-9-B11-125-FDAE006-EE.jpg",
 
     local CombatTab = Window:MakeTab({
                 Name = "Combat",
