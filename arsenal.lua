@@ -27,6 +27,9 @@ local MainSection = MainTab:AddSection({
 local Player = game.Players.LocalPlayer
 local InfiniteAmmo = false
 
+local Player = game.Players.LocalPlayer
+local InfiniteAmmo = false
+
 MainTab:AddToggle({
     Name = "Infinite Ammo",
     Default = false,
@@ -37,13 +40,13 @@ MainTab:AddToggle({
 
 game.Players.LocalPlayer.Backpack.Arsenal.Changed:Connect(function()
     if InfiniteAmmo then
-        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = math.huge
+        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = _G.AmmoInClip
     end
 end)
 
 game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Changed:Connect(function()
     if InfiniteAmmo then
-        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = math.huge
+        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = _G.AmmoInClip
     end
 end)
 
