@@ -1,5 +1,3 @@
-if game.PLaceId == 286090429 then
-
 	-- Booting the library
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
