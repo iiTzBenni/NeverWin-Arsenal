@@ -1,4 +1,6 @@
--- Booting the library
+if game.PLaceId == 286090429 then
+
+	-- Booting the library
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 OrionLib:MakeNotification({
@@ -12,104 +14,117 @@ OrionLib:MakeNotification({
 local Window = OrionLib:MakeWindow({Name = "NeverWin - Arsenal", HidePremium = false, SaveConfig = true, ConfigFolder = "Orion", 
 IntroEnabled = true, IntroText ="NeverWin Hub", IntroIcon = "https://i.ibb.co/WyQcqLW/B11-EAE04-032-E-4-DB9-9-B11-125-FDAE006-EE.jpg", Icon = "https://i.ibb.co/WyQcqLW/B11-EAE04-032-E-4-DB9-9-B11-125-FDAE006-EE.jpg"})
 
--- Main Tab
-local MainTab = Window:MakeTab({
-	Name = "Main",
+local CombatTab = Window:MakeTab({
+	Name = "Combat",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
-local MainSection = MainTab:AddSection({
-	Name = "Gun Modifiers"
-})
-
 -- inf ammo
-local InfiniteAmmo = MainTab:AddToggle({
+local Player = game.Players.LocalPlayer
+local InfiniteAmmo = false
+
+CombatTab:AddButton({
     Name = "Infinite Ammo",
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            game.ReplicatedStorage.AmmoPickupEvent.OnServerEvent:Connect(function(player, pickup)
-                local weapon = player.Character:FindFirstChild("Gun")
-                if weapon then
-                    local ammoBox = weapon:FindFirstChild("AmmoBox")
-                    if ammoBox then
-                        local ammo = ammoBox:FindFirstChild("CurrentAmmo")
-                        if ammo then
-                            ammo.Value = ammo.Value + ammoBox.MaxAmmo.Value
-                        end
-                    end
-                end
-            end)
-        else
-            game.ReplicatedStorage.AmmoPickupEvent.OnServerEvent:Disconnect()
-        end
-    end    
+    Callback = function()
+        InfiniteAmmo = true
+		print("Infinite Ammo toggle on")
+    end
 })
 
--- fast fire rate
-local FastFireRate = MainTab:AddToggle({
-    Name = "Fast Fire Rate",
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
-            if gun then
-                local fireRate = gun:FindFirstChild("FireRate")
-                if fireRate then
-                    fireRate.Value = fireRate.Value / 2 -- Set the fire rate to half of its original value
-                end
-            end
-        else
-            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
-            if gun then
-                local fireRate = gun:FindFirstChild("FireRate")
-                if fireRate then
-                    fireRate.Value = fireRate.Value * 2 -- Reset the fire rate to its original value
-                end
-            end
-        end
-    end    
+game.Players.LocalPlayer.Backpack.Arsenal.Changed:Connect(function()
+    if InfiniteAmmo then
+        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = math.huge
+    end
+end)
+
+game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Changed:Connect(function()
+    if InfiniteAmmo then
+        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = math.huge
+    end
+end)
+
+-- Silent aim
+local Player = game.Players.LocalPlayer
+local SilentAim = false
+
+CombatTab:AddButton({
+    Name = "Silent Aim",
+    Callback = function()
+        SilentAim = true
+        print("Silent Aim toggle on")
+    end
 })
 
--- rainbow gun
+game.Players.LocalPlayer.Backpack.Arsenal.Equipped:Connect(function(weapon)
+    if SilentAim then
+        local target = nil
+        local closestDistance = math.huge
 
-local RainbowGun = MainTab:AddToggle({
-    Name = "Rainbow Gun",
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
-            if gun then
-                local rainbowMaterial = Instance.new("Material")
-                rainbowMaterial.Name = "RainbowMaterial"
-                rainbowMaterial.Parent = gun
-                local rainbowColor = Instance.new("NumberValue")
-                rainbowColor.Name = "RainbowColor"
-                rainbowColor.Parent = rainbowMaterial
-                rainbowColor.Value = 0
-                local hueShift = 0.01
-                spawn(function()
-                    while Value do
-                        rainbowColor.Value = rainbowColor.Value + hueShift
-                        if rainbowColor.Value > 1 then
-                            rainbowColor.Value = 0
-                        end
-                        rainbowMaterial.Color = Color3.fromHSV(rainbowColor.Value, 1, 1)
-                        wait(0.05)
-                    end
-                end)
-            end
-        else
-            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
-            if gun then
-                local rainbowMaterial = gun:FindFirstChild("RainbowMaterial")
-                if rainbowMaterial then
-                    rainbowMaterial:Destroy()
+        for i, player in ipairs(game.Players:GetPlayers()) do
+            if player ~= Player and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                local distance = (player.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    target = player.Character.HumanoidRootPart
                 end
             end
         end
-    end    
+
+        if target then
+            local aimPos = CFrame.new(Player.Character.HumanoidRootPart.Position, target.Position)
+            local mouse = Player:GetMouse()
+            mouse.Target = aimPos.LookVector
+        end
+    end
+end)
+
+-- fov aimbot
+local Player = game.Players.LocalPlayer
+local FOVAimbot = false
+local FOV = 90
+
+Tab:AddButton({
+    Name = "FOV Aimbot",
+    Callback = function()
+        FOVAimbot = true
+        print("FOV Aimbot toggle on")
+    end
 })
+
+game.Players.LocalPlayer.Backpack.Arsenal.Equipped:Connect(function(weapon)
+    if FOVAimbot then
+        local target = nil
+        local closestDistance = math.huge
+
+        for i, player in ipairs(game.Players:GetPlayers()) do
+            if player ~= Player and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                local distance = (player.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).Magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    target = player.Character.HumanoidRootPart
+                end
+            end
+        end
+
+        if target then
+            local aimPos = CFrame.new(Player.Character.HumanoidRootPart.Position, target.Position)
+            local mouse = Player:GetMouse()
+            local camera = game.Workspace.CurrentCamera
+            local viewAngle = camera.FieldOfView
+            local viewDistance = (camera.CFrame.LookVector * viewAngle / 2) / math.tan(math.rad(viewAngle / 2))
+            local viewCenter = camera.CFrame.LookVector * viewDistance
+            local viewCone = viewCenter + camera.CFrame.RightVector * FOV / 2 + camera.CFrame.UpVector * viewDistance
+            local viewPlane = camera.CFrame.RightVector * FOV
+            local viewPoint = viewCone - viewPlane
+            local viewRay = camera.CFrame.LookVector * viewDistance
+            local hit, position, normal, surface = workspace:FindPartOnRayWithIgnoreList(viewRay, {Player.Character, target})
+
+            if hit and position and (position - viewPoint).Magnitude < viewDistance then
+                mouse.Target = aimPos.LookVector
+            end
+        end
+    end
+end)
 
 OrionLib:Init()
