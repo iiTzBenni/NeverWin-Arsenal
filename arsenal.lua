@@ -23,31 +23,93 @@ local MainSection = MainTab:AddSection({
 	Name = "Gun Modifiers"
 })
 
--- Inf ammo
-local Player = game.Players.LocalPlayer
-local InfiniteAmmo = false
-
-local Player = game.Players.LocalPlayer
-local InfiniteAmmo = false
-
-MainTab:AddToggle({
+-- inf ammo
+local InfiniteAmmo = MainTab:AddToggle({
     Name = "Infinite Ammo",
     Default = false,
     Callback = function(Value)
-        InfiniteAmmo = Value
-    end
+        if Value then
+            game.ReplicatedStorage.AmmoPickupEvent.OnServerEvent:Connect(function(player, pickup)
+                local weapon = player.Character:FindFirstChild("Gun")
+                if weapon then
+                    local ammoBox = weapon:FindFirstChild("AmmoBox")
+                    if ammoBox then
+                        local ammo = ammoBox:FindFirstChild("CurrentAmmo")
+                        if ammo then
+                            ammo.Value = ammo.Value + ammoBox.MaxAmmo.Value
+                        end
+                    end
+                end
+            end)
+        else
+            game.ReplicatedStorage.AmmoPickupEvent.OnServerEvent:Disconnect()
+        end
+    end    
 })
 
-game.Players.LocalPlayer.Backpack.Arsenal.Changed:Connect(function()
-    if InfiniteAmmo then
-        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = _G.AmmoInClip
-    end
-end)
+-- fast fire rate
+local FastFireRate = MainTab:AddToggle({
+    Name = "Fast Fire Rate",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
+            if gun then
+                local fireRate = gun:FindFirstChild("FireRate")
+                if fireRate then
+                    fireRate.Value = fireRate.Value / 2 -- Set the fire rate to half of its original value
+                end
+            end
+        else
+            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
+            if gun then
+                local fireRate = gun:FindFirstChild("FireRate")
+                if fireRate then
+                    fireRate.Value = fireRate.Value * 2 -- Reset the fire rate to its original value
+                end
+            end
+        end
+    end    
+})
 
-game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Changed:Connect(function()
-    if InfiniteAmmo then
-        game.Players.LocalPlayer.Backpack.Arsenal.Ammo.Value = _G.AmmoInClip
-    end
-end)
+-- rainbow gun
+
+local RainbowGun = MainTab:AddToggle({
+    Name = "Rainbow Gun",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
+            if gun then
+                local rainbowMaterial = Instance.new("Material")
+                rainbowMaterial.Name = "RainbowMaterial"
+                rainbowMaterial.Parent = gun
+                local rainbowColor = Instance.new("NumberValue")
+                rainbowColor.Name = "RainbowColor"
+                rainbowColor.Parent = rainbowMaterial
+                rainbowColor.Value = 0
+                local hueShift = 0.01
+                spawn(function()
+                    while Value do
+                        rainbowColor.Value = rainbowColor.Value + hueShift
+                        if rainbowColor.Value > 1 then
+                            rainbowColor.Value = 0
+                        end
+                        rainbowMaterial.Color = Color3.fromHSV(rainbowColor.Value, 1, 1)
+                        wait(0.05)
+                    end
+                end)
+            end
+        else
+            local gun = game.Players.LocalPlayer.Character:FindFirstChild("Gun")
+            if gun then
+                local rainbowMaterial = gun:FindFirstChild("RainbowMaterial")
+                if rainbowMaterial then
+                    rainbowMaterial:Destroy()
+                end
+            end
+        end
+    end    
+})
 
 OrionLib:Init()
